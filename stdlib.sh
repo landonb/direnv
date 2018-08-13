@@ -205,16 +205,20 @@ source_env() {
   rcfile=$(user_rel_path "$rcpath")
   watch_file "$rcpath"
 
+  # (lb): What's the point of the `pushd $(pwd)`?
   pushd "$(pwd 2>/dev/null)" >/dev/null
-  pushd "$(dirname "$rcpath")" >/dev/null
-  if [[ -f ./$(basename "$rcpath") ]]; then
-    log_status "loading $rcfile"
-    # shellcheck source=/dev/null
-    . "./$(basename "$rcpath")"
-  else
-    log_status "referenced $rcfile does not exist"
+  # (lb): If symlinks on path, found file might not really be there.
+  if [[ -d "$(dirname "$rcpath")" ]]; then
+    pushd "$(dirname "$rcpath")" >/dev/null
+    if [[ -f ./$(basename "$rcpath") ]]; then
+      log_status "loading $rcfile"
+      # shellcheck source=/dev/null
+      . "./$(basename "$rcpath")"
+    else
+      log_status "referenced $rcfile does not exist"
+    fi
+    popd >/dev/null
   fi
-  popd >/dev/null
   popd >/dev/null
 }
 
