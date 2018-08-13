@@ -652,10 +652,10 @@ use_node() {
     # Strip $NODE_VERSIONS/$NODE_VERSION_PREFIX prefix from line.
     # Sort by version: split by "." then reverse numeric sort for each piece of the version string
     # The first one is the highest
-    find "$NODE_VERSIONS" -maxdepth 1 -mindepth 1 -type d -name "$node_wanted*" \
-      | while IFS= read -r line; do echo "${line#${NODE_VERSIONS%/}/${node_version_prefix}}"; done \
-      | sort -t . -k 1,1rn -k 2,2rn -k 3,3rn \
-      | head -1
+    find "$NODE_VERSIONS" -maxdepth 1 -mindepth 1 -type d -name "$node_wanted*" |
+      while IFS= read -r line; do echo "${line#${NODE_VERSIONS%/}/${node_version_prefix}}"; done |
+      sort -t . -k 1,1rn -k 2,2rn -k 3,3rn |
+      head -1
   )
 
   node_prefix="${NODE_VERSIONS}/${node_version_prefix}${node_prefix}"
