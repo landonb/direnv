@@ -217,16 +217,20 @@ const StdLib = "#!/usr/bin/env bash\n" +
 	"  rcfile=$(user_rel_path \"$rcpath\")\n" +
 	"  watch_file \"$rcpath\"\n" +
 	"\n" +
+	"  # (lb): What's the point of the `pushd $(pwd)`?\n" +
 	"  pushd \"$(pwd 2>/dev/null)\" >/dev/null || return 1\n" +
-	"  pushd \"$(dirname \"$rcpath\")\" >/dev/null || return 1\n" +
-	"  if [[ -f ./$(basename \"$rcpath\") ]]; then\n" +
-	"    log_status \"loading $rcfile\"\n" +
-	"    # shellcheck disable=SC1090\n" +
-	"    . \"./$(basename \"$rcpath\")\"\n" +
-	"  else\n" +
-	"    log_status \"referenced $rcfile does not exist\"\n" +
+	"  # (lb): If symlinks on path, found file might not really be there.\n" +
+	"  if [[ -d \"$(dirname \"$rcpath\")\" ]]; then\n" +
+	"    pushd \"$(dirname \"$rcpath\")\" >/dev/null || return 1\n" +
+	"    if [[ -f ./$(basename \"$rcpath\") ]]; then\n" +
+	"      log_status \"loading $rcfile\"\n" +
+	"      # shellcheck disable=SC1090\n" +
+	"      . \"./$(basename \"$rcpath\")\"\n" +
+	"    else\n" +
+	"      log_status \"referenced $rcfile does not exist\"\n" +
+	"    fi\n" +
+	"    popd >/dev/null || return 1\n" +
 	"  fi\n" +
-	"  popd >/dev/null || return 1\n" +
 	"  popd >/dev/null || return 1\n" +
 	"}\n" +
 	"\n" +
@@ -740,10 +744,10 @@ const StdLib = "#!/usr/bin/env bash\n" +
 	"    # Strip $NODE_VERSIONS/$NODE_VERSION_PREFIX prefix from line.\n" +
 	"    # Sort by version: split by \".\" then reverse numeric sort for each piece of the version string\n" +
 	"    # The first one is the highest\n" +
-	"    find \"$NODE_VERSIONS\" -maxdepth 1 -mindepth 1 -type d -name \"$node_wanted*\" \\\n" +
-	"      | while IFS= read -r line; do echo \"${line#${NODE_VERSIONS%/}/${node_version_prefix}}\"; done \\\n" +
-	"      | sort -t . -k 1,1rn -k 2,2rn -k 3,3rn \\\n" +
-	"      | head -1\n" +
+	"    find \"$NODE_VERSIONS\" -maxdepth 1 -mindepth 1 -type d -name \"$node_wanted*\" |\n" +
+	"      while IFS= read -r line; do echo \"${line#${NODE_VERSIONS%/}/${node_version_prefix}}\"; done |\n" +
+	"      sort -t . -k 1,1rn -k 2,2rn -k 3,3rn |\n" +
+	"      head -1\n" +
 	"  )\n" +
 	"\n" +
 	"  node_prefix=\"${NODE_VERSIONS}/${node_version_prefix}${node_prefix}\"\n" +
