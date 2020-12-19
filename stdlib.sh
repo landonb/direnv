@@ -214,6 +214,12 @@ source_env() {
   rcfile=$(user_rel_path "$rcpath")
   watch_file "$rcpath"
 
+  # FIXME/2020-12-19 00:20: This might be fixed upstream.
+  #
+  #   c0f1718 "bug-fix paths when PWD has a symlink in it"
+  #
+  # In which case this fork can be trashed.
+  #
   # (lb): What's the point of the `pushd $(pwd)`?
   pushd "$(pwd 2>/dev/null)" >/dev/null || return 1
   # (lb): If symlinks on path, found file might not really be there.
